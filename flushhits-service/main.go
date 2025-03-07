@@ -3,39 +3,24 @@ package main
 import (
 	"context"
 	"log"
+	"math/rand/v2"
 	"shortify/config"
 	"shortify/mongo"
 	"shortify/redis"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
-	"github.com/go-redsync/redsync/v4"
-	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	redislib "github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type Hits struct {
-	urls  map[string]int
-	mutex sync.Mutex
-}
-
-func LockKeys(rdb *redislib.Client) *redsync.Mutex {
-	pool := goredis.NewPool(rdb)
-	rs := redsync.New(pool)
-	mutexname := "flushhits:lock"
-	mutex := rs.NewMutex(mutexname)
-	mutex.Lock()
-	return mutex
-}
-
 func FlushHits(config config.Config) {
 	mongo := config.GetMongo()
 	rdb := config.GetRedis()
+	workerId := rand.IntN(100)
 	for {
-		mutex := LockKeys(rdb)
+		mutex := redis.LockKeys(rdb)
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		var cursor uint64
 		var err error
@@ -65,7 +50,7 @@ func FlushHits(config config.Config) {
 			filter := bson.M{"url": url}
 			update := bson.M{"$inc": bson.M{"hits": urlHits}}
 
-			log.Printf("Found hits for %s, flushing %d hits..", url, urlHits)
+			log.Printf("[%d] Found hits for %s, flushing %d hits..", workerId, url, urlHits)
 			ctx, cancel = context.WithTimeout(context.Background(), 30*time.Second)
 			_, err = mongo.Database("shortify").Collection("stats").UpdateOne(ctx, filter, update)
 			if err != nil {
@@ -80,6 +65,8 @@ func FlushHits(config config.Config) {
 				log.Printf("cant find %s in cache", key)
 			}
 		}
+		log.Println("performing tasks..")
+		time.Sleep(time.Second * 2)
 		mutex.Unlock()
 		time.Sleep(time.Second * 3)
 	}
