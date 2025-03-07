@@ -65,8 +65,6 @@ func FlushHits(config config.Config) {
 				log.Printf("cant find %s in cache", key)
 			}
 		}
-		log.Println("performing tasks..")
-		time.Sleep(time.Second * 2)
 		mutex.Unlock()
 		time.Sleep(time.Second * 3)
 	}
