@@ -42,18 +42,17 @@ type Stats struct {
 
 var URLs = []URL{}
 
-func Direct(config config.Config, hitsChan chan string) gin.HandlerFunc {
+func Direct(config config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		url := c.Param("url")
 		mongo := config.GetMongo()
+		rdb := config.GetRedis()
 		var data URL
 		var err error
-		var rdb *redislib.Client
 
-		hitsChan <- url
+		go IncrementHits(url, 1, rdb)
 
 		if config.EnableCache {
-			rdb = config.GetRedis()
 			data, err := fetchFromRedis(url, rdb)
 			if err == nil {
 				c.Redirect(http.StatusTemporaryRedirect, data.URL)
@@ -213,9 +212,9 @@ func fetchFromRedis(url string, rdb *redislib.Client) (URL, error) {
 	var data URL
 	var err error
 	var val string
-	for i := 0; i < 10; i++ {
-		val, err = redis.RetrieveFromCache(url, rdb)
-	}
+	// for i := 0; i < 10; i++ {
+	val, err = redis.RetrieveFromCache(url, rdb)
+	// }
 	if err == nil {
 		json.Unmarshal([]byte(val), &data)
 		return data, nil

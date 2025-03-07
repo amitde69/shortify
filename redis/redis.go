@@ -8,6 +8,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/go-redsync/redsync/v4"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -34,7 +36,7 @@ func LoadToCache(key string, value any, redis *redis.Client) error {
 		fmt.Println(err)
 	}
 	strvalue := string(jsonvalue)
-	err = redis.Set(ctx, key, strvalue, time.Second*10).Err()
+	err = redis.Set(ctx, "urls:"+key, strvalue, time.Second*10).Err()
 	if err != nil {
 		log.Printf("failed setting key %s in cache: %s", key, err)
 		return err
@@ -44,7 +46,7 @@ func LoadToCache(key string, value any, redis *redis.Client) error {
 
 func RetrieveFromCache(key string, rdb *redis.Client) (string, error) {
 	ctx := context.Background()
-	value, err := rdb.Get(ctx, key).Result()
+	value, err := rdb.Get(ctx, "urls:"+key).Result()
 	if err != redis.Nil {
 		return value, nil
 	}
@@ -55,11 +57,20 @@ func RetrieveFromCache(key string, rdb *redis.Client) (string, error) {
 
 func InvalidateCache(key string, rdb *redis.Client) error {
 	ctx := context.Background()
-	_, err := rdb.Del(ctx, key).Result()
+	_, err := rdb.Del(ctx, "urls:"+key).Result()
 	if err != redis.Nil {
 		return nil
 	}
 	log.Printf("Failed deleting %s from cache", key)
 	return fmt.Errorf("cant find key %s in cache", key)
 
+}
+
+func LockKeys(rdb *redis.Client) *redsync.Mutex {
+	pool := goredis.NewPool(rdb)
+	rs := redsync.New(pool)
+	mutexname := "flushhits:lock"
+	mutex := rs.NewMutex(mutexname)
+	mutex.Lock()
+	return mutex
 }

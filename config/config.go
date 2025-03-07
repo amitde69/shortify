@@ -19,7 +19,7 @@ func (c *Config) InitConfig(config *Config) {
 	var err error
 	config.EnableCache, err = strconv.ParseBool(os.Getenv("ENABLE_CACHE"))
 	if err != nil {
-		log.Println("Failed parsing ENABLE_CACHE config")
+		log.Println("Failed parsing ENABLE_CACHE config env var")
 		config.EnableCache = false
 	}
 	log.Println("ENABLE_CACHE ==", config.EnableCache)

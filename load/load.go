@@ -9,7 +9,7 @@ import (
 
 func main() {
 	wg := sync.WaitGroup{}
-	for i := 0; i < 100000; i++ {
+	for i := 0; i < 15; i++ {
 
 		for i := 0; i < 100; i++ {
 			wg.Add(1)
