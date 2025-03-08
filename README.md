@@ -132,7 +132,7 @@ Standalone process that expires old URL mappings and performs a cleanup in the s
 ### FlushHits Service
 Standalone process that collects hits aggregated in **redis** and flushes the stats to **mongodb**.
 - loop every 3 seconds and perform write to **mongodb** if new keys found
-- scan redis with match `hits:*`
+- scan redis with match `stats:*`
 - loop over found keys
 - write each one to relevant record in `stats` collection, then delete the keys in **redis**
 
