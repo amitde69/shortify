@@ -1,29 +1,5 @@
 version: '3'
 services:
-  # my-ui:
-  #   container_name: my-ui
-  #   build: ./my-ui
-  #   ports:
-  #     - "80:80"
-  #   depends_on:
-  #     - my-api
-  #   networks:
-  #     - test-network
-
-  # my-api:
-  #   container_name: my-api
-  #   restart: always
-  #   build:
-  #     context: my-api
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "8080:8080"
-  #   #command: mvn clean spring-boot:run -Dspring-boot.run.profiles=docker
-  #   depends_on:
-  #     - rabbitmq
-  #     - mp-redis
-  #   networks:
-  #     - test-network
   redis:
     image: redis
     ports:
