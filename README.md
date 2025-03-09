@@ -142,4 +142,4 @@ To ensure scalability and handling high traffic rate, a few measures we're taken
 
 - **Batching** - analytic access events are handled during redirect logic in a separate goroutine and stored (aggregated) in redis using the INCR command, then a separate process (worker) collects the keys from **redis** and writes them to **mongodb** in batches.
 - **Cache Aside** - caching for url mapping is implemented during redirect logic in a lazy loading (cache-aside) strategy while also setting a TTL on keys to avoid utilizing too much memory in cache as well as avoid overloading **mongodb**  with mapping retrievals.
-- **Rate Limit** TODO: rate limit `/api/shoreten` endpoint to avoid overloading the database with INSERTS and using too much storage.
+- **Rate Limit** TODO: rate limit `/api/shorten` endpoint to avoid overloading the database with INSERTS and using too much storage.
