@@ -4,7 +4,7 @@
     - [API Layer](#api-layer)    
     - [Logic Layer](#logic-layer)    
     - [Data Store](#data-store)
-    - [Caching Layer](#caching-layer-1)    
+    - [Caching Layer](#caching-layer)    
     - [Async Workers ](#async-workers)    
 2. [API Design](#api-design)
     - [POST /api/shorten](#post-apishorten)
@@ -12,11 +12,11 @@
     - [GET /api/stats/{short_url}](#get-apistatsshort_url)
 3. [Core Design Decisions](#core-design-decisions)
     - [Data Store Schema](#data-store-schema)
-4. [Caching Layer](#caching-layer)
-5. [Async Workers](#async-workers)
+    - [Caching Layer](#caching-layer-1)
+4. [Async Workers](#async-workers)
     - [Expire Service](#expire-service)
     - [FlushHits Service](#flushhits-service)
-6. [Scalability](#scalability)
+5. [Scalability](#scalability)
 
 
 
